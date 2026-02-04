@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import Organization from "../models/org.model.js";
 
 /* Generate JWT */
 const generateToken = (id) => {
@@ -35,6 +36,14 @@ export const registerUser = async (req, res) => {
       email,
       password: hashed,
     });
+
+    const org = await Organization.create({
+      name: `${name}'s Workspace`,
+      owner: user._id,
+    });
+
+    user.organization = org._id;
+    await user.save();
 
     res.status(201).json({
       token: generateToken(user._id),
